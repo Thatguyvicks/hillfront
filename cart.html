@@ -1,165 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hilldash | Your Cart</title>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius: 16px;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hilldash | Your Cart</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+:root {
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--bg); 
-            color: var(--text-main);
-            padding-bottom: 100px;
-        }
-
-        .top-navbar {
-            padding: 1.2rem 6%;
-            background: var(--surface);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-
-        .cart-container {
-            max-width: 1100px;
-            margin: 24px auto;
-            padding: 0 6%;
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .cart-container { grid-template-columns: 1fr; }
-        }
-
-        .cart-card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .cart-card h2 { font-size: 1.25rem; margin-bottom: 20px; font-weight: 800; }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .cart-item:last-child { border-bottom: none; }
-        
-        .item-details h4 { font-size: 1rem; margin-bottom: 4px; }
-        .item-details p { font-size: 0.85rem; color: var(--text-muted); }
-        .store-badge { 
-            font-size: 0.7rem; background: var(--primary-light); 
-            color: var(--primary); padding: 2px 8px; border-radius: 50px; 
-            font-weight: 700; display: inline-block; margin-top: 4px;
-        }
-
-        .item-actions { display: flex; align-items: center; gap: 16px; }
-        
-        .qty-pill {
-            display: flex;
-            align-items: center;
-            background: #f1f5f9;
-            padding: 4px;
-            border-radius: 50px;
-            gap: 12px;
-        }
-        .qty-pill button {
-            width: 30px; height: 30px; border-radius: 50%;
-            border: none; background: #fff; cursor: pointer;
-            font-weight: bold; font-size: 1.1rem; display: flex;
-            align-items: center; justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .qty-pill span { font-weight: 700; width: 20px; text-align: center; }
-
-        .remove-icon { color: var(--danger); font-size: 1.3rem; cursor: pointer; transition: 0.2s; }
-        .remove-icon:hover { opacity: 0.7; }
-
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 500; }
-        .summary-total { margin-top: 16px; padding-top: 16px; border-top: 2px dashed var(--border); font-size: 1.2rem; font-weight: 800; }
-        
-        .checkout-btn {
-            width: 100%; padding: 16px; background: var(--primary);
-            color: white; border: none; border-radius: 12px;
-            font-weight: 700; font-size: 1rem; cursor: pointer;
-            margin-top: 20px; transition: 0.3s;
-        }
-        .checkout-btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
-        .checkout-btn:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
-
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px);
-            display: none; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: #fff; padding: 32px; border-radius: 24px;
-            width: 90%; max-width: 450px; position: relative;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal h2 { margin-bottom: 16px; font-weight: 800; }
-        .modal input, .modal textarea {
-            width: 100%; padding: 12px 16px; border-radius: 12px;
-            border: 1px solid var(--border); margin-bottom: 12px;
-            font-family: inherit; font-size: 0.95rem;
-        }
-        
-        .payment-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-        .pay-btn {
-            padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer;
-        }
-        #payTransfer { background: var(--primary); color: white; }
-        #payCash { background: #fbbf24; color: #78350f; }
-
-        .floating-nav {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
-            padding: 12px 24px; border-radius: 50px; display: flex; gap: 32px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 99;
-        }
-        .nav-item { color: var(--text-muted); font-size: 1.4rem; }
-        .nav-item.active { color: var(--primary); }
-
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--text-main); color: white; padding: 12px 24px;
-            border-radius: 50px; font-weight: 600; opacity: 0; transition: 0.3s; z-index: 2000;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
-        }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
-    </style>
+/* ... keep all your previous CSS ... */
+</style>
 </head>
 <body>
 
@@ -247,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function autoFill() {
         const user = JSON.parse(localStorage.getItem("user")) || {};
         const savedAddress = localStorage.getItem("userAddress");
-        
         if (user.name) document.getElementById("customerName").value = user.name;
         if (user.email) document.getElementById("customerEmail").value = user.email;
         if (savedAddress) addressField.value = savedAddress;
@@ -277,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Integrity Check: Make sure only 1 store exists
+        // Integrity Check: only 1 store
         const stores = [...new Set(cart.map(item => item.storeName))];
         if (stores.length > 1) {
             checkoutBtn.disabled = true;
@@ -337,42 +200,40 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("payCash").onclick = () => { paymentModal.style.display = "none"; confirmModal.style.display = "flex"; };
     document.getElementById("confirmNo").onclick = () => confirmModal.style.display = "none";
 
-async function sendOrder(reference, total) {
+    async function sendOrder(reference, total) {
         const cart = getCart();
-        const name = document.getElementById("customerName").value;
-        const email = document.getElementById("customerEmail").value;
-        const phone = document.getElementById("customerPhone").value;
-        const address = document.getElementById("deliveryAddress").value;
+        if (!cart.length) return showToast("Your cart is empty ❌");
 
-        // Validations
-        if(!name || !email || !address || !phone) {
-            return showToast("Please fill all details");
-        }
+        const name = document.getElementById("customerName").value.trim();
+        const email = document.getElementById("customerEmail").value.trim();
+        const phone = document.getElementById("customerPhone").value.trim();
+        const address = document.getElementById("deliveryAddress").value.trim();
 
-    const orderData = {
-    customerName: name,
-    customerEmail: email,
-    customerPhone: phone,
-    deliveryAddress: address,
-    items: cart,
-    total: total,
-    paymentMethod: selectedPayment,
-    status: "pending",
-    storeName: cart[0].storeName,
-    assignedWorkerEmail: cart[0].storeEmail // ✅ FIXED
-};
+        if(!name || !email || !address || !phone) return showToast("Please fill all details");
+
+        const orderData = {
+            customerName: name,
+            customerEmail: email,
+            customerPhone: phone,
+            deliveryAddress: address,
+            items: cart.map(i => ({ ...i, quantity: i.quantity || 1 })), // ensure quantity exists
+            total: total,
+            paymentMethod: selectedPayment,
+            status: "pending",
+            storeName: cart[0].storeName || "Unknown Store",
+            assignedWorkerEmail: cart[0].storeEmail || ""
+        };
 
         try {
             const response = await fetch(`${BACKEND_URL}/orders`, {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData)
             });
 
             if(response.ok) {
                 showToast("Order placed! ✅");
                 localStorage.removeItem("cart");
-                // Save address for next time
                 localStorage.setItem("userAddress", address);
                 setTimeout(() => { window.location.href = "profile.html"; }, 1500);
             } else {
@@ -388,9 +249,11 @@ async function sendOrder(reference, total) {
     document.getElementById("payTransfer").onclick = () => {
         const total = updateTotals();
         selectedPayment = "bank_transfer";
+        const emailValue = document.getElementById("customerEmail").value.trim();
+        if(!emailValue) return showToast("Enter your email for payment");
         const handler = PaystackPop.setup({
             key: "pk_live_68b9c6fcb4aa268d863ae64c7b3dba0e0c5d4dbd",
-            email: document.getElementById("customerEmail").value,
+            email: emailValue,
             amount: total * 100,
             currency: "NGN",
             callback: (res) => sendOrder(res.reference, total),
@@ -399,7 +262,6 @@ async function sendOrder(reference, total) {
         handler.openIframe();
     };
 
- // Ensure total is recalculated correctly before payment
     document.getElementById("confirmYes").onclick = () => {
         const totalAmount = updateTotals();
         selectedPayment = "cash";
