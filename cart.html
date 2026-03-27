@@ -3,328 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hilldash | Your Cart</title>
+<title>Hilldash | Cart</title>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://js.paystack.co/v1/inline.js"></script>
 <style>
 :root {
     --primary: #2563eb;
-    --primary-light: #eff6ff;
-    --success: #22c55e;
-    --danger: #ef4444;
     --bg: #f8fafc;
     --surface: #ffffff;
     --text-main: #0f172a;
     --text-muted: #64748b;
     --border: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --radius: 16px;
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-body {
-    background: var(--bg);
+/* Reset & Body */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background: var(--bg); 
     color: var(--text-main);
-    min-height: 100vh;
+    padding-bottom: 120px; /* for floating nav */
 }
 
-.top-navbar {
-    width: 100%;
+/* Header */
+.header-section {
     background: var(--surface);
-    padding: 15px 20px;
-    box-shadow: var(--shadow);
+    padding: 20px 6%;
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
+    z-index: 100;
 }
 
-.top-navbar .logo {
-    font-weight: 700;
+.header-section h1 {
     font-size: 1.5rem;
+    font-weight: 800;
     color: var(--primary);
 }
 
+/* Cart Items */
 .cart-container {
-    max-width: 1000px;
-    margin: 20px auto;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    padding: 0 10px;
-}
-
-.cart-card {
-    background: var(--surface);
-    flex: 1;
-    min-width: 300px;
-    padding: 20px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-}
-
-.cart-card h2 {
-    margin-bottom: 20px;
-    font-size: 1.25rem;
+    padding: 24px 6%;
 }
 
 .cart-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border);
-    padding: 12px 0;
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.item-details h4 {
-    font-weight: 600;
-}
-
-.item-details p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-
-.store-badge {
-    background: var(--primary-light);
-    color: var(--primary);
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 6px;
+    gap: 15px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    margin-left: 6px;
+    margin-bottom: 12px;
 }
 
-.item-actions {
+.cart-item img {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.cart-info { flex: 1; }
+.cart-info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+.cart-info p { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+
+.qty-control {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
 }
 
-.qty-pill {
-    display: flex;
-    align-items: center;
-    background: var(--primary-light);
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.qty-pill button {
-    border: none;
-    background: var(--primary);
-    color: white;
+.qty-control button {
     width: 28px;
     height: 28px;
+    border: none;
+    background: var(--surface);
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: bold;
+    box-shadow: var(--shadow-sm);
 }
 
-.qty-pill span {
-    display: inline-block;
-    padding: 0 10px;
-    font-weight: 500;
-}
-
-.remove-icon {
+.remove-btn {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
     cursor: pointer;
-    color: var(--danger);
-    font-size: 1.2rem;
-    transition: transform 0.2s;
+    font-size: 0.8rem;
 }
 
-.remove-icon:hover {
-    transform: scale(1.2);
-}
-
-.summary-row {
+/* Total & Checkout */
+.cart-total {
+    margin-top: 24px;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.summary-total {
-    font-size: 1.1rem;
     font-weight: 700;
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    margin-top: 10px;
+    font-size: 1.1rem;
 }
 
 .checkout-btn {
-    width: 100%;
-    padding: 12px;
+    margin-top: 12px;
     background: var(--primary);
     color: white;
     border: none;
-    border-radius: var(--radius);
+    padding: 12px;
+    border-radius: 12px;
+    width: 100%;
     font-weight: 700;
-    margin-top: 15px;
     cursor: pointer;
-    transition: background 0.3s;
+    font-size: 1rem;
 }
 
-.checkout-btn:disabled {
-    background: var(--border);
-    cursor: not-allowed;
-}
-
-.checkout-btn:hover:not(:disabled) {
-    background: #1d4ed8;
-}
-
+/* Floating Nav (same as shop) */
 .floating-nav {
     position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: var(--surface);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    box-shadow: 0 -2px 6px rgb(0 0 0 / 0.1);
-}
-
-.floating-nav .nav-item {
-    color: var(--text-muted);
-    font-size: 1.4rem;
-    text-decoration: none;
-}
-
-.floating-nav .nav-item.active {
-    color: var(--primary);
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(0 0 0 / 0.5);
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    padding: 20px;
-}
-
-.modal-content {
-    background: var(--surface);
-    padding: 25px 20px;
-    border-radius: var(--radius);
-    width: 100%;
-    max-width: 400px;
-    box-shadow: var(--shadow);
-}
-
-.modal-content h2, .modal-content h3 {
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.modal-content input, .modal-content textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 0.9rem;
-}
-
-.payment-btns {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.pay-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s;
-}
-
-.pay-btn:hover {
-    transform: scale(1.05);
-}
-
-.toast {
-    position: fixed;
-    bottom: 50px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--text-main);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 12px 24px;
+    border-radius: 50px;
+    display: flex;
+    gap: 32px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255,255,255,0.5);
+    z-index: 999;
+}
+
+.nav-item { color: var(--text-muted); font-size: 1.5rem; }
+.nav-item.active { color: var(--primary); }
+
+/* Toast */
+.toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f172a;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 50px; 
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 2000;
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 3000;
+    transition: 0.3s;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    white-space: nowrap;
 }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
 
-.toast.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(-10px);
-}
-
-@media(max-width: 768px){
-    .cart-container {
-        flex-direction: column;
-        padding: 0 15px;
-    }
-    .cart-card {
-        width: 100%;
-    }
+@media(max-width: 480px) {
+    .cart-container { padding: 16px; }
 }
 </style>
 </head>
 <body>
 
-<header class="top-navbar">
-    <div class="logo">Hilldash</div>
+<header class="header-section">
+    <h1>My Cart</h1>
 </header>
 
-<main class="cart-container">
-    <div class="cart-card">
-        <h2>Your Cart</h2>
-        <div id="cartItemsContainer"></div>
-    </div>
+<div class="cart-container" id="cartContainer"></div>
 
-    <div class="cart-card" style="height: fit-content; position: sticky; top: 100px;">
-        <h2>Order Summary</h2>
-        <div class="summary-row">
-            <span>Subtotal</span>
-            <span id="subtotal">₦0</span>
-        </div>
-        <div class="summary-row">
-            <span>Shipping Fee</span>
-            <span id="shipping">₦0</span>
-        </div>
-        <div class="summary-row summary-total">
-            <span>Total</span>
-            <span id="total">₦0</span>
-        </div>
-        <button class="checkout-btn" id="openPayment">Proceed to Checkout</button>
-        <p id="errorNote" style="color: var(--danger); font-size: 0.75rem; font-weight: 700; text-align: center; margin-top: 10px; display: none;">Multiple restaurants detected. Please clear cart.</p>
-    </div>
-</main>
+<div class="cart-total" id="cartTotal">
+    <span>Total:</span>
+    <span>₦0</span>
+</div>
+<button class="checkout-btn" onclick="checkout()">Checkout</button>
 
 <nav class="floating-nav">
     <a href="customer.html" class="nav-item"><i class="ri-home-5-line"></i></a>
@@ -333,37 +189,100 @@ body {
     <a href="profile.html" class="nav-item"><i class="ri-user-line"></i></a>
 </nav>
 
-<div class="modal" id="paymentModal">
-    <div class="modal-content">
-        <h2>Checkout Info</h2>
-        <input type="text" id="customerName" placeholder="Full Name">
-        <input type="email" id="customerEmail" placeholder="Email Address">
-        <input type="tel" id="customerPhone" placeholder="Phone Number">
-        <textarea id="deliveryAddress" placeholder="Delivery Address" rows="3"></textarea>
-        
-        <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">SELECT PAYMENT METHOD</p>
-        <div class="payment-btns">
-            <button class="pay-btn" id="payTransfer" style="background: var(--primary); color:white;">Pay Online</button>
-            <button class="pay-btn" id="payCash" style="background: var(--success); color:white;">Pay on Delivery</button>
-        </div>
-        <button id="closePayment" style="background:none; border:none; color:var(--text-muted); width:100%; margin-top:15px; cursor:pointer;">Cancel</button>
-    </div>
-</div>
-
-<div class="modal" id="confirmModal">
-    <div class="modal-content" style="text-align: center;">
-        <i class="ri-information-line" style="font-size: 3rem; color: #fbbf24;"></i>
-        <h3>Pay with Cash?</h3>
-        <p style="color: var(--text-muted); margin: 10px 0 20px;">You will pay the courier upon delivery.</p>
-        <div class="payment-btns">
-            <button class="pay-btn" id="confirmYes" style="background:var(--success); color:white;">Confirm Order</button>
-            <button class="pay-btn" id="confirmNo" style="background:var(--bg); color:var(--text-main);">Back</button>
-        </div>
-    </div>
-</div>
-
 <script>
-// ... Your JS remains the same as your original script ...
+// Toast function
+function showToast(message){
+    const toast = document.createElement("div");
+    toast.innerText = message;
+    toast.classList.add("toast");
+    document.body.appendChild(toast);
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    setTimeout(() => { 
+        toast.classList.remove('show'); 
+        setTimeout(() => toast.remove(), 400);
+    }, 2800);
+}
+
+// Load cart from localStorage
+function loadCart() {
+    const cartContainer = document.getElementById('cartContainer');
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cartContainer.innerHTML = '';
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        total += item.price * item.quantity;
+
+        const div = document.createElement('div');
+        div.classList.add('cart-item');
+        div.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="cart-info">
+                <h4>${item.name}</h4>
+                <p>₦${item.price.toLocaleString()}</p>
+            </div>
+            <div class="qty-control">
+                <button class="minus">−</button>
+                <span class="qty">${item.quantity}</span>
+                <button class="plus">+</button>
+            </div>
+            <button class="remove-btn">Remove</button>
+        `;
+
+        const qtySpan = div.querySelector('.qty');
+
+        div.querySelector('.plus').onclick = () => {
+            item.quantity++;
+            qtySpan.textContent = item.quantity;
+            saveCart(cart);
+            updateTotal(cart);
+        };
+        div.querySelector('.minus').onclick = () => {
+            if(item.quantity > 1){
+                item.quantity--;
+                qtySpan.textContent = item.quantity;
+                saveCart(cart);
+                updateTotal(cart);
+            }
+        };
+        div.querySelector('.remove-btn').onclick = () => {
+            cart.splice(index, 1);
+            saveCart(cart);
+            loadCart();
+            showToast(`${item.name} removed`);
+        };
+
+        cartContainer.appendChild(div);
+    });
+
+    updateTotal(cart);
+}
+
+function saveCart(cart){
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function updateTotal(cart){
+    const total = cart.reduce((sum, item)=> sum + item.price * item.quantity, 0);
+    document.getElementById('cartTotal').querySelector('span:last-child').textContent = `₦${total.toLocaleString()}`;
+}
+
+function checkout(){
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if(cart.length === 0){
+        showToast("Cart is empty!");
+        return;
+    }
+    // Here you can send cart to backend
+    localStorage.removeItem('cart');
+    loadCart();
+    showToast("Order placed successfully! 🎉");
+}
+
+// Initial load
+loadCart();
 </script>
 </body>
 </html>
