@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilldash | Premium Marketplace</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --accent: #f59e0b;
+            --bg: #fdfdfd;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            --border: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.5;
+            padding-bottom: 120px;
+        }
+
+        /* ===== TOP HEADER ===== */
+        header {
+            background: var(--surface);
+            padding: 1.2rem 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .location-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 12px;
+            transition: 0.2s;
+            max-width: 75%;
+        }
+        .location-picker:hover { background: var(--primary-light); }
+        .location-picker i { color: var(--primary); font-size: 1.3rem; }
+        .location-info p { color: var(--text-muted); font-size: 0.7rem; font-weight: 500; text-transform: uppercase; }
+        .location-info span { 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-actions { display: flex; gap: 12px; }
+        .icon-btn {
+            width: 42px; height: 42px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: grid; place-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* ===== LOCATION MODAL ===== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none; align-items: flex-end;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .location-modal {
+            background: var(--surface);
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            padding: 2rem;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .modal-header { margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-weight: 800; font-size: 1.2rem; }
+
+        .loc-input-group { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+        .loc-input-wrapper { position: relative; flex: 1; }
+        .loc-input-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--primary); }
+        .loc-input {
+            width: 100%; padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #e2e8f0; border-radius: var(--radius-md);
+            background: #f8fafc; font-family: inherit; font-size: 1rem;
+            outline: none;
+        }
+        .loc-input:focus { border-color: var(--primary); background: #fff; }
+
+        .btn-add-loc {
+            background: var(--primary); color: white; border: none;
+            padding: 0 1.2rem; border-radius: var(--radius-md);
+            font-weight: 700; cursor: pointer;
+        }
+
+        .current-loc-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            color: var(--primary); font-weight: 700; font-size: 0.9rem;
+            padding: 1.1rem; border-radius: var(--radius-md);
+            background: var(--primary-light); cursor: pointer; border: 1px solid rgba(37, 99, 235, 0.1); width: 100%;
+            margin-bottom: 1.5rem; transition: 0.3s;
+        }
+
+        /* Saved Addresses Section */
+        .saved-section { border-top: 1px solid var(--border); padding-top: 1.5rem; }
+        .saved-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem; }
+        .address-list { display: flex; flex-direction: column; gap: 10px; }
+        .address-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; border-radius: var(--radius-md);
+            background: #f8fafc; cursor: pointer; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .address-item:hover { background: var(--primary-light); border-color: var(--primary); }
+        .address-item i { color: var(--text-muted); font-size: 1.2rem; }
+        .address-item span { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* General layout */
+        .container { padding: 0 6%; }
+        .grid-categories { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1.5rem;}
+        .cat-card {
+            background: var(--surface); border-radius: var(--radius-md); padding: 1.2rem;
+            text-align: center; border: 1px solid var(--border); transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; text-decoration: none; color: inherit;
+        }
+        .cat-img-wrapper { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; }
+        .cat-img-wrapper img { width: 60%; }
+
+       .floating-nav {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+            padding: 12px 24px; border-radius: 50px; display: flex; gap: 32px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 99;
+        }
+        .nav-item { color: var(--text-muted); font-size: 1.4rem; }
+        .nav-item.active { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="modal-overlay" id="locationOverlay">
+    <div class="location-modal">
+        <div class="modal-header">
+            <h3>Change Location</h3>
+            <i class="ri-close-circle-fill" id="closeLocation" style="font-size: 1.5rem; cursor: pointer; color: var(--text-muted);"></i>
+        </div>
+
+        <button class="current-loc-btn" id="useCurrentLoc">
+            <i class="ri-focus-3-line"></i>
+            <span>Pinpoint My Building</span>
+        </button>
+
+        <div class="loc-input-group">
+            <div class="loc-input-wrapper">
+                <i class="ri-map-pin-add-line"></i>
+                <input type="text" id="locSearchInput" class="loc-input" placeholder="Enter new address...">
+            </div>
+            <button class="btn-add-loc" id="saveManualBtn">Save</button>
+        </div>
+
+        <div class="saved-section">
+            <p class="saved-title">Saved Addresses</p>
+            <div class="address-list" id="addressList">
+                </div>
+        </div>
+    </div>
+</div>
+
+<header>
+    <div class="location-picker" id="openLocation">
+        <i class="ri-map-pin-2-fill"></i>
+        <div class="location-info">
+            <p>Delivering to</p>
+            <span id="displayLocation">Click to set address <i class="ri-arrow-down-s-line"></i></span>
+        </div>
+    </div>
+    <div class="user-actions">
+        <div class="icon-btn"><i class="ri-notification-3-line"></i></div>
+        <div class="icon-btn"><i class="ri-user-6-line"></i></div>
+    </div>
+</header>
+
+<main class="container">
+    <h3 style="margin-top: 2rem; font-weight: 800;">Quick Categories</h3>
+    <div class="grid-categories">
+        <a href="#" class="cat-card">
+            <div class="cat-img-wrapper" style="background: #fff4e6;"><img src="https://cdn-icons-png.flaticon.com/512/3081/3081986.png"></div>
+            <span>Tech</span>
+        </a>
+        <a href="#" class="cat-card">
+            <div class="cat-img-wrapper" style="background: #eef2ff;"><img src="https://cdn-icons-png.flaticon.com/512/3159/3159614.png"></div>
+            <span>Fashion</span>
+        </a>
+    </div>
+</main>
+
+<nav class="floating-nav">
+    <a href="customer.html" class="nav-item"><i class="ri-home-5-line"></i></a>
+    <a href="shop.html" class="nav-item"><i class="ri-store-2-line"></i></a>
+    <a href="cart.html" class="nav-item"><i class="ri-shopping-cart-2-line"></i></a>
+    <a href="profile.html" class="nav-item active"><i class="ri-user-line"></i></a>
+</nav>
+
+<script>
+    const displayLocation = document.getElementById('displayLocation');
+    const locationOverlay = document.getElementById('locationOverlay');
+    const locSearchInput = document.getElementById('locSearchInput');
+    const saveManualBtn = document.getElementById('saveManualBtn');
+    const addressListContainer = document.getElementById('addressList');
+    const useCurrentLoc = document.getElementById('useCurrentLoc');
+
+    // 1. Initial Load
+    let savedAddresses = JSON.parse(localStorage.getItem('hilldash_addresses')) || [];
+    const activeAddress = localStorage.getItem('userLocation') || "Set Location";
+    displayLocation.innerText = activeAddress;
+    renderAddresses();
+
+    // 2. Modal Controls
+    document.getElementById('openLocation').onclick = () => locationOverlay.classList.add('active');
+    document.getElementById('closeLocation').onclick = () => locationOverlay.classList.remove('active');
+
+    // 3. Save Manual Address
+    function handleManualSave() {
+        const val = locSearchInput.value.trim();
+        if (val) {
+            // Add to list if not already there
+            if (!savedAddresses.includes(val)) {
+                savedAddresses.unshift(val);
+                localStorage.setItem('hilldash_addresses', JSON.stringify(savedAddresses));
+            }
+            updateActiveLocation(val);
+            renderAddresses();
+            locSearchInput.value = "";
+        }
+    }
+
+    saveManualBtn.onclick = handleManualSave;
+    locSearchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleManualSave(); });
+
+    // 4. Update Active Location
+    function updateActiveLocation(text) {
+        displayLocation.innerText = text;
+        localStorage.setItem('userLocation', text);
+        locationOverlay.classList.remove('active');
+    }
+
+    // 5. Render Saved Addresses
+    function renderAddresses() {
+        addressListContainer.innerHTML = "";
+        savedAddresses.forEach(addr => {
+            const div = document.createElement('div');
+            div.className = 'address-item';
+            div.innerHTML = `<i class="ri-history-line"></i> <span>${addr}</span>`;
+            div.onclick = () => updateActiveLocation(addr);
+            addressListContainer.appendChild(div);
+        });
+    }
+
+    // 6. Pinpoint High Accuracy GPS
+    useCurrentLoc.onclick = () => {
+        const btnSpan = useCurrentLoc.querySelector('span');
+        btnSpan.innerText = "Finding building...";
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+                    const data = await res.json();
+                    const addr = data.address;
+                    const result = `${addr.house_number || ''} ${addr.road || ''}, ${addr.city || addr.town || ''}`.trim();
+                    
+                    const finalAddr = result || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                    
+                    // Auto-save GPS results too
+                    if (!savedAddresses.includes(finalAddr)) {
+                        savedAddresses.unshift(finalAddr);
+                        localStorage.setItem('hilldash_addresses', JSON.stringify(savedAddresses));
+                    }
+                    
+                    updateActiveLocation(finalAddr);
+                    renderAddresses();
+                } catch (e) {
+                    updateActiveLocation("GPS Location Found");
+                } finally {
+                    btnSpan.innerText = "Pinpoint My Building";
+                }
+            }, () => {
+                alert("Please enable GPS");
+                btnSpan.innerText = "Pinpoint My Building";
+            }, { enableHighAccuracy: true });
+        }
+    };
+</script>
+
+</body>
+</html>

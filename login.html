@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilldash | Courier Portal</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;background:#f1f5f9;padding:15px;}
+        .container{background:#fff;width:100%;max-width:400px;padding:30px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.05);}
+        .tabs{display:flex;margin-bottom:20px;background:#f1f5f9;border-radius:12px;padding:4px;}
+        .tab{flex:1;padding:12px;text-align:center;cursor:pointer;font-weight:600;border-radius:10px;}
+        .tab.active{background:#2563eb;color:#fff;}
+        .section{display:none;}
+        .section.active{display:block;}
+        input, select, textarea{width:100%;padding:14px;margin-top:12px;border-radius:12px;border:1px solid #e2e8f0;outline:none;}
+        button{width:100%;padding:14px;margin-top:15px;border:none;border-radius:12px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;}
+        .msg{margin-top:12px;text-align:center;font-weight:600;font-size:14px;}
+        .toggle-btn{background:#eff6ff;color:#2563eb;border:none;padding:12px;border-radius:12px;width:100%;margin-top:10px;font-weight:700;cursor:pointer;}
+        .collapse{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+        .collapse.active{max-height:600px;margin-top:10px;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('apply')">Apply</div>
+        <div class="tab" onclick="switchTab('login')">Login</div>
+    </div>
+
+    <div id="apply" class="section active">
+        <h2 style="text-align:center">🚚 Join Hilldash</h2>
+        <input id="statusEmail" placeholder="Check application email">
+        <button onclick="checkApproval('statusEmail')">Check My Status</button>
+        <div style="text-align:center; margin:15px 0; color:#94a3b8">OR</div>
+        <button class="toggle-btn" onclick="document.getElementById('applyForm').classList.toggle('active')">New Application ⬇</button>
+        <div id="applyForm" class="collapse">
+            <input id="name" placeholder="Full Name">
+            <input id="email" placeholder="Email">
+            <input id="phone" placeholder="Phone Number">
+            <select id="vehicle"><option value="">Vehicle Type</option><option>Bike</option><option>Car</option></select>
+            <button onclick="apply()">Submit Application</button>
+        </div>
+        <p class="msg" id="applyMsg"></p>
+    </div>
+
+    <div id="login" class="section">
+        <h2 style="text-align:center">🔐 Courier Login</h2>
+        <input id="loginEmail" placeholder="Registered Email">
+        <button onclick="checkApproval('loginEmail')">Login to Dashboard</button>
+        <p class="msg" id="loginMsg"></p>
+    </div>
+</div>
+
+<script>
+    const API = "https://hilldashcorp.onrender.com";
+
+    function switchTab(tab){
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function showMessage(el, text, color="black"){
+        el.style.color = color;
+        el.innerText = text;
+    }
+
+    async function checkApproval(inputId){
+        const email = document.getElementById(inputId).value.trim().toLowerCase();
+        const msg = inputId === 'loginEmail' 
+            ? document.getElementById("loginMsg") 
+            : document.getElementById("applyMsg");
+
+        if(!email){
+            return showMessage(msg, "⚠️ Enter your email", "red");
+        }
+
+        showMessage(msg, "Checking...", "#2563eb");
+
+        try {
+            const res = await fetch(`${API}/courier/check-approval`, {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({ email })
+            });
+
+            if(!res.ok){
+                throw new Error("Server not responding");
+            }
+
+            const data = await res.json();
+
+            if(data.approved){
+                localStorage.setItem("courierEmail", email);
+
+                showMessage(msg, "✅ Approved! Redirecting...", "green");
+
+                setTimeout(()=>{
+                    window.location.href = "courier-orders.html";
+                }, 800);
+
+            } else {
+                showMessage(msg, "❌ Not approved yet or not found", "red");
+            }
+
+        } catch(e){
+            console.error(e);
+            showMessage(msg, "⚠️ Cannot connect to server", "red");
+        }
+    }
+
+    async function apply(){
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim().toLowerCase();
+        const phone = document.getElementById("phone").value.trim();
+        const vehicle = document.getElementById("vehicle").value;
+
+        const msg = document.getElementById("applyMsg");
+
+        if(!name || !email || !phone || !vehicle){
+            return showMessage(msg, "⚠️ Fill all fields", "red");
+        }
+
+        showMessage(msg, "Submitting application...", "#2563eb");
+
+        try {
+            const res = await fetch(`${API}/courier/apply`, {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({ name, email, phone, vehicle })
+            });
+
+            if(!res.ok){
+                throw new Error("Server error");
+            }
+
+            const data = await res.json();
+
+            showMessage(msg, "✅ Application submitted! Wait for approval.", "green");
+
+            // Optional: auto-fill status checker
+            document.getElementById("statusEmail").value = email;
+
+        } catch(e){
+            console.error(e);
+            showMessage(msg, "❌ Failed to submit application", "red");
+        }
+    }
+</script>
+</body>
+</html>

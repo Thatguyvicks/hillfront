@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilldash | Earnings Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg-light: #f8fafc;
+            --text-main: #0f172a;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-light); color: var(--text-main); padding-top: 100px; padding-bottom: 40px; }
+
+        /* Floating Top Bar - Identical to Map Page */
+        #topBar {
+            position: fixed; top: 15px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 20px; background: #fff;
+            border-radius: 16px; z-index: 1000; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        /* Centered Title to match the "Wallet" section layout */
+        .nav-title { 
+            flex: 1; 
+            text-align: center; 
+            font-size: 16px; 
+            font-weight: 800; 
+            color: var(--primary);
+            margin-right: 24px; /* Compensate for the menu button width to keep it centered */
+        }
+
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--text-main); }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            position: fixed; left: -300px; top: 0; width: 280px; height: 100%;
+            background: #fff; z-index: 3000; transition: 0.4s ease;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 25px;
+        }
+        #sidebar.open { left: 0; }
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.4); display:none; z-index: 2500;
+        }
+        .nav-item { 
+            display: flex; align-items: center; gap: 15px; padding: 15px; 
+            border-radius: 12px; cursor: pointer; color: #64748b; font-weight: 600;
+            margin-bottom: 5px; transition: 0.2s; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active { background: #f1f5f9; color: var(--primary); }
+        .nav-item i { font-size: 20px; }
+
+        /* Content Sections */
+        .container { max-width: 600px; margin: auto; padding: 0 20px; }
+
+        .earnings-grid { 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px; 
+        }
+        .stat-card { 
+            background: #fff; padding: 15px 10px; border-radius: 16px; 
+            text-align: center; box-shadow: var(--card-shadow); border: 1px solid #f1f5f9;
+        }
+        .stat-card span { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 5px; }
+        .stat-card b { font-size: 14px; color: var(--success); }
+
+        .chart-container { 
+            background: #fff; padding: 20px; border-radius: 20px; 
+            box-shadow: var(--card-shadow); margin-bottom: 25px; 
+        }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart-header h3 { font-size: 15px; }
+        
+        select { 
+            padding: 6px 10px; border-radius: 10px; border: 1px solid #e2e8f0; 
+            background: #fff; font-size: 12px; font-weight: 600; outline: none;
+        }
+
+        .history-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: #475569; padding-left: 5px; }
+        .order-card { 
+            background: #fff; padding: 18px; border-radius: 16px; 
+            box-shadow: var(--card-shadow); margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .order-info b { font-size: 14px; display: block; margin-bottom: 4px; }
+        .order-info span { font-size: 12px; color: #64748b; }
+        .order-profit { text-align: right; }
+        .order-profit b { color: var(--success); font-size: 16px; }
+        .order-profit span { font-size: 10px; color: #94a3b8; display: block; }
+
+        .toast {
+            position: fixed; top: 85px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: #fff; padding: 10px 20px; border-radius: 30px;
+            font-size: 13px; z-index: 4000; display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div style="margin-bottom: 30px;">
+        <h2 style="color: var(--primary);">Hilldash</h2>
+        <p style="font-size: 12px; color: #64748b;">Courier Partner</p>
+    </div>
+    
+    <a href="courier-orders.html" class="nav-item">
+        <i class="ri-shopping-bag-line"></i> Active Orders
+    </a>
+
+    <a href="delivery-history.html" class="nav-item active">
+        <i class="ri-history-line"></i> Total Earnings
+    </a>
+
+    <a href="courier-profile.html" class="nav-item">
+        <i class="ri-user-line"></i> Profile
+    </a>
+
+    <a href="payment.html" class="nav-item">
+        <i class="ri-bank-card-line"></i> Payout Method
+    </a>
+
+    <div class="nav-item" id="logoutBtn" style="margin-top: 50px; color: var(--danger);">
+        <i class="ri-logout-box-line"></i> Logout
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div id="topBar">
+    <i class="ri-menu-2-line menu-btn" id="openMenu"></i>
+    <div class="nav-title">Earnings History</div>
+</div>
+
+<div class="container">
+    <div class="earnings-grid">
+        <div class="stat-card">
+            <span>Daily</span>
+            <b id="dayEarn">₦0</b>
+        </div>
+        <div class="stat-card">
+            <span>Weekly</span>
+            <b id="weekEarn">₦0</b>
+        </div>
+        <div class="stat-card">
+            <span>Monthly</span>
+            <b id="monthEarn">₦0</b>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>Performance</h3>
+            <select id="viewToggle">
+                <option value="daily">Daily Profit</option>
+                <option value="weekly">Weekly Profit</option>
+                <option value="monthly">Monthly Profit</option>
+            </select>
+        </div>
+        <canvas id="earningsChart"></canvas>
+    </div>
+
+    <h3 class="history-title">Recent Payouts</h3>
+    <div id="historyContainer"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    const courierEmail = localStorage.getItem('courierEmail');
+    if(!courierEmail) {
+        window.location.href = "login.html";
+    }
+
+    // UI Controls
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    
+    document.getElementById("openMenu").onclick = () => {
+        sidebar.classList.add("open");
+        overlay.style.display = "block";
+    };
+
+    overlay.onclick = () => {
+        sidebar.classList.remove("open");
+        overlay.style.display = "none";
+    };
+
+    document.getElementById("logoutBtn").onclick = () => {
+        localStorage.removeItem("courierEmail");
+        window.location.href="login.html";
+    };
+
+    const API = window.location.hostname === "localhost" 
+        ? "https://hilldashcorp.onrender.com" 
+        : "https://hilldashcorp.onrender.com/api";
+
+    const container = document.getElementById("historyContainer");
+    let earningsChart;
+
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg;
+        t.style.display = "block";
+        setTimeout(() => t.style.display = "none", 3000);
+    }
+
+    // Initialize Chart
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    earningsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Profit (₦)',
+                data: [0, 0, 0, 0, 0, 0, 0],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+        }
+    });
+
+    async function loadData() {
+        try {
+            const res = await fetch(`${API}/orders`);
+            const data = await res.json();
+            const orders = Array.isArray(data) ? data : data.orders || [];
+
+            const myOrders = orders.filter(o => o.status === "delivered" && o.courierEmail === courierEmail);
+
+            let daySum = 0, weekSum = 0, monthSum = 0;
+            const now = new Date();
+
+            myOrders.forEach(o => {
+                const orderDate = new Date(o.createdAt);
+                const profit = (o.total || 0) * 0.15; 
+
+                if(orderDate.toDateString() === now.toDateString()) daySum += profit;
+                if(orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear()) monthSum += profit;
+
+                const diffTime = Math.abs(now - orderDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if(diffDays <= 7) weekSum += profit;
+            });
+
+            document.getElementById("dayEarn").innerText = `₦${Math.round(daySum).toLocaleString()}`;
+            document.getElementById("weekEarn").innerText = `₦${Math.round(weekSum).toLocaleString()}`;
+            document.getElementById("monthEarn").innerText = `₦${Math.round(monthSum).toLocaleString()}`;
+
+            renderHistory(myOrders);
+            updateChart(myOrders);
+
+        } catch (err) {
+            showToast("Sync Error: Please check your connection.");
+        }
+    }
+
+    function renderHistory(orders) {
+        container.innerHTML = "";
+        if(!orders.length) {
+            container.innerHTML = "<p style='text-align:center; padding:20px; color:#94a3b8;'>No delivery history found.</p>";
+            return;
+        }
+
+        orders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 10).forEach(o => {
+            const profit = Math.round(o.total * 0.15);
+            const div = document.createElement("div");
+            div.className = "order-card";
+            div.innerHTML = `
+                <div class="order-info">
+                    <b>${o.customerName || 'Customer'}</b>
+                    <span>${new Date(o.createdAt).toLocaleDateString()} • ${o.deliveryAddress ? o.deliveryAddress.substring(0, 15) : 'N/A'}...</span>
+                </div>
+                <div class="order-profit">
+                    <b>+₦${profit.toLocaleString()}</b>
+                    <span>Commission</span>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    document.getElementById("viewToggle").onchange = loadData;
+
+    function updateChart(orders) {
+        const view = document.getElementById("viewToggle").value;
+        let labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        let dataPoints = [0, 0, 0, 0, 0, 0, 0]; 
+
+        // Simulated historical data for chart visibility
+        if(view === "weekly") {
+            labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+            dataPoints = [5200, 7800, 4100, 11000];
+        } else if(view === "monthly") {
+            labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+            dataPoints = [22000, 43000, 31000, 48000, 62000];
+        }
+
+        earningsChart.data.labels = labels;
+        earningsChart.data.datasets[0].data = dataPoints;
+        earningsChart.update();
+    }
+
+    loadData();
+</script>
+
+</body>
+</html>

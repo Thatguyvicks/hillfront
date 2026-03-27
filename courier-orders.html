@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilldash | Courier Pro</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg-light: #ffffff;
+            --text-main: #0f172a;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-light); color: var(--text-main); padding-top: 100px; }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            position: fixed; left: -300px; top: 0; width: 280px; height: 100%;
+            background: #fff; z-index: 3000; transition: 0.4s ease;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1); padding: 25px;
+        }
+        #sidebar.open { left: 0; }
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.4); display:none; z-index: 2500;
+        }
+        .nav-item { 
+            display: flex; align-items: center; gap: 15px; padding: 15px; 
+            border-radius: 12px; cursor: pointer; color: #64748b; font-weight: 600;
+            margin-bottom: 5px; transition: 0.2s; text-decoration: none;
+        }
+        .nav-item:hover { background: #f1f5f9; color: var(--primary); }
+
+        /* Top Bar Navigation */
+        #topBar {
+            position: fixed; top: 15px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 20px; background: #fff;
+            border-radius: 16px; z-index: 1000; 
+            box-shadow: var(--card-shadow);
+            border: 1px solid #f1f5f9;
+        }
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--text-main); }
+        
+        #onlineBtn {
+            background: #e2e8f0; color: #475569; border: none;
+            padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer;
+            transition: 0.3s;
+        }
+        #onlineBtn.on { background: var(--success); color: #fff; }
+
+        /* Main Content Area */
+        .main-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .waiting-state {
+            margin-top: 100px;
+            color: #94a3b8;
+        }
+        .waiting-state i { font-size: 50px; display: block; margin-bottom: 10px; opacity: 0.5; }
+
+        /* Order Details Card */
+        #orderCard {
+            background: #fff; border-radius: 24px; border: 1px solid #f1f5f9;
+            box-shadow: var(--card-shadow); display: none; flex-direction: column;
+            padding: 24px; text-align: left;
+        }
+
+        .finance-row {
+            background: #f8fafc; border-radius: 16px; padding: 15px;
+            display: flex; justify-content: space-between; margin-bottom: 20px;
+        }
+        .profit-text { color: var(--success); font-weight: 800; font-size: 18px; }
+
+        .location-box { margin-bottom: 20px; border-left: 2px solid #e2e8f0; padding-left: 20px; position: relative; }
+        .loc-dot { position: absolute; left: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); top: 5px; }
+        .loc-dot.red { background: var(--danger); bottom: 5px; top: auto; }
+        .loc-item b { display: block; font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+        .loc-item p { font-size: 14px; font-weight: 600; margin-bottom: 15px; }
+
+        /* Navigation Buttons */
+        .nav-actions {
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;
+        }
+        .nav-link-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            background: #fff; border: 1.5px solid var(--primary); color: var(--primary);
+            text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px; border-radius: 12px;
+            cursor: pointer;
+        }
+
+        /* Action Row */
+        .btn-row { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; }
+        .btn-go { background: var(--primary); color: #fff; }
+        .btn-done { background: var(--success); color: #fff; }
+        .btn-reject { background: #fef2f2; color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div style="margin-bottom: 30px;">
+        <h2 style="color: var(--primary);">Hilldash</h2>
+        <p style="font-size: 12px; color: #64748b;">Courier Partner</p>
+    </div>
+    <a href="courier-profile.html" class="nav-item"><i class="ri-user-line"></i> Profile</a>
+    <a href="delivery-history.html" class="nav-item"><i class="ri-wallet-line"></i> Total Earnings</a>
+    <a href="payment.html" class="nav-item"><i class="ri-bank-card-line"></i> Payout Method</a>
+    
+    <div class="nav-item" style="margin-top: 50px; color: var(--danger); cursor: pointer;" 
+         onclick="localStorage.clear(); sessionStorage.clear(); window.location.href='login.html'">
+        <i class="ri-logout-box-line"></i> Logout
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div id="topBar">
+    <i class="ri-menu-2-line menu-btn" id="openMenu"></i>
+    <div style="text-align: center;">
+        <span style="font-size: 10px; color: #64748b; display: block;">WALLET</span>
+        <b id="walletBalance">₦0.00</b>
+    </div>
+    <button id="onlineBtn">Go Online</button>
+</div>
+
+<div class="main-container">
+    <div id="idleState" class="waiting-state">
+        <i class="ri-EBike-line"></i>
+        <p id="statusText">Go online to start receiving orders</p>
+    </div>
+
+    <div id="orderCard">
+        <h3 style="margin-bottom: 15px; font-size: 18px;">New Delivery Task</h3>
+        
+        <div class="finance-row">
+            <div>
+                <span style="font-size: 11px; color: #64748b;">TOTAL FARE</span>
+                <div style="font-size: 18px; font-weight: 700;">₦<span id="pTotal">0</span></div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 11px; color: #64748b;">YOUR EARNING (15%)</span>
+                <div class="profit-text">₦<span id="pProfit">0</span></div>
+            </div>
+        </div>
+
+        <div class="location-box">
+            <div class="loc-dot"></div>
+            <div class="loc-item">
+                <b>Pickup Store</b>
+                <p id="pRest">Vendor Kitchen</p>
+            </div>
+            <div class="loc-dot red"></div>
+            <div class="loc-item" style="margin-bottom: 0;">
+                <b>Drop-off Address</b>
+                <p id="pAddr">Delivery Address</p>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <button class="nav-link-btn" id="preciseNavBtn">
+                <i class="ri-map-pin-user-line"></i> Use Precise Navigation
+            </button>
+            <a id="googleNav" href="#" target="_blank" class="nav-link-btn" style="border-color: #e2e8f0; color: #64748b;">
+                <i class="ri-google-fill"></i> Standard Google Maps
+            </a>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-reject" id="rejectBtn">Reject</button>
+            <button class="btn btn-go" id="pickupBtn">Start Delivery</button>
+            <button class="btn btn-done" id="completeBtn" style="display:none;">Complete Order</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+    const API = "https://hilldashcorp.onrender.com";
+    let currentOrder = null;
+
+    // Load State from LocalStorage
+    let isOnline = localStorage.getItem("isOnline") === "true";
+    let balance = parseFloat(localStorage.getItem("walletBalance")) || 0;
+
+    const onlineBtn = document.getElementById("onlineBtn");
+    const statusText = document.getElementById("statusText");
+    const walletDisplay = document.getElementById("walletBalance");
+
+    // Initialize UI State
+    function initUI() {
+        walletDisplay.innerText = `₦${balance.toLocaleString()}`;
+        if (isOnline) {
+            onlineBtn.classList.add("on");
+            onlineBtn.innerText = "Online";
+            statusText.innerText = "Searching for nearby orders...";
+            pollOrders();
+        }
+    }
+
+    // Sidebar Logic
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    
+    document.getElementById("openMenu").onclick = () => {
+        sidebar.classList.add("open");
+        overlay.style.display = "block";
+    };
+
+    overlay.onclick = () => {
+        sidebar.classList.remove("open");
+        overlay.style.display = "none";
+    };
+
+    // Online/Offline Toggle
+    onlineBtn.onclick = () => {
+        isOnline = !isOnline;
+        localStorage.setItem("isOnline", isOnline);
+        
+        onlineBtn.classList.toggle("on");
+        onlineBtn.innerText = isOnline ? "Online" : "Go Online";
+        statusText.innerText = isOnline ? "Searching for nearby orders..." : "Go online to start receiving orders";
+        
+        if(isOnline) pollOrders();
+    };
+
+    async function pollOrders() {
+        if(!isOnline || currentOrder) return;
+        try {
+            const res = await fetch(`${API}/orders`);
+            const orders = await res.json();
+            // Assuming assignedWorkerEmail is filtered on the backend or we filter here
+            const order = orders.find(o => o.status === "pending_courier" || o.status === "out_for_delivery");
+            if(order) renderOrder(order);
+        } catch (e) { console.error("Sync error", e); }
+    }
+
+    function renderOrder(order) {
+        currentOrder = order;
+        const profit = (order.total * 0.15).toFixed(0);
+
+        document.getElementById("pTotal").innerText = order.total.toLocaleString();
+        document.getElementById("pProfit").innerText = parseInt(profit).toLocaleString();
+        document.getElementById("pRest").innerText = order.storeName || "Vendor Kitchen";
+        document.getElementById("pAddr").innerText = order.deliveryAddress;
+        
+        // Standard Google Search Link
+        document.getElementById("googleNav").href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.deliveryAddress)}`;
+
+        // Active States
+        document.getElementById("idleState").style.display = "none";
+        document.getElementById("orderCard").style.display = "flex";
+
+        if(order.status === "out_for_delivery") {
+            document.getElementById("pickupBtn").style.display = "none";
+            document.getElementById("rejectBtn").style.display = "none";
+            document.getElementById("completeBtn").style.display = "block";
+        } else {
+            document.getElementById("pickupBtn").style.display = "block";
+            document.getElementById("rejectBtn").style.display = "block";
+            document.getElementById("completeBtn").style.display = "none";
+        }
+    }
+
+    // Precise Navigation Logic (GPS Route)
+    document.getElementById("preciseNavBtn").onclick = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        const btn = document.getElementById("preciseNavBtn");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="ri-loader-4-line"></i> Getting Route...';
+        
+        navigator.geolocation.getCurrentPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const dest = encodeURIComponent(currentOrder.deliveryAddress);
+            
+            // Official Google Maps Direction API (Current Loc to Destination)
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${lat},${lng}&destination=${dest}&travelmode=driving`;
+            window.open(url, '_blank');
+            btn.innerHTML = originalText;
+        }, () => {
+            alert("Unable to retrieve your location. Check your GPS settings.");
+            btn.innerHTML = originalText;
+        });
+    };
+
+    document.getElementById("pickupBtn").onclick = async () => {
+        await updateStatus(currentOrder._id, "out_for_delivery");
+        renderOrder({...currentOrder, status: "out_for_delivery"});
+    };
+
+    document.getElementById("completeBtn").onclick = async () => {
+        const profit = Math.round(currentOrder.total * 0.15);
+        await updateStatus(currentOrder._id, "delivered");
+        
+        balance += profit;
+        localStorage.setItem("walletBalance", balance);
+        walletDisplay.innerText = `₦${balance.toLocaleString()}`;
+        
+        document.getElementById("orderCard").style.display = "none";
+        document.getElementById("idleState").style.display = "block";
+        currentOrder = null;
+    };
+
+    document.getElementById("rejectBtn").onclick = async () => {
+        // Return to pending so other workers can see it
+        await updateStatus(currentOrder._id, "pending");
+        document.getElementById("orderCard").style.display = "none";
+        document.getElementById("idleState").style.display = "block";
+        currentOrder = null;
+    };
+
+    async function updateStatus(id, status) {
+        try {
+            await fetch(`${API}/orders/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status })
+            });
+        } catch(e) { alert("Failed to update order status."); }
+    }
+
+    // Initialize on load
+    initUI();
+    setInterval(pollOrders, 5000);
+</script>
+</body>
+</html>

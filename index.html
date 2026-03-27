@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hilldash | Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-gradient); 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--glass-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo-area { margin-bottom: 32px; }
+        .logo-area h1 { 
+            font-size: 2.25rem; 
+            font-weight: 800; 
+            color: var(--primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+        }
+        .logo-area p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Modern Role Switcher */
+        .role-selector {
+            display: flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 1;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .role-btn.active { color: var(--primary); }
+
+        .slider {
+            position: absolute;
+            height: calc(100% - 8px);
+            width: calc(50% - 4px);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            left: 4px;
+        }
+
+        .worker-active .slider { transform: translateX(100%); }
+
+        /* Google Button Styling */
+        .google-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .divider span { padding: 0 12px; }
+
+        .footer-text { font-size: 0.85rem; color: var(--text-muted); }
+        .footer-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+        #message { margin-top: 16px; font-size: 0.85rem; color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="logo-area">
+            <h1>Hilldash</h1>
+            <p>Welcome back! Please sign in.</p>
+        </div>
+
+        <div class="role-selector" id="roleContainer">
+            <div class="slider"></div>
+            <button id="customerBtn" class="role-btn active">Customer</button>
+            <button id="workerBtn" class="role-btn">Worker</button>
+        </div>
+
+        <div class="google-btn-wrapper">
+            <div id="g_id_onload"
+                 data-client_id="37842917068-61n8m783e6k4kul3arii6sljc4vh2ial.apps.googleusercontent.com"
+                 data-callback="handleGoogleLogin">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-size="large" data-logo_alignment="left" data-width="340"></div>
+        </div>
+
+        <div class="divider"><span>Secured by Google</span></div>
+        
+        <p class="footer-text">Need help? <a href="#">Contact Support</a></p>
+        <p id="message"></p>
+    </div>
+</div>
+
+<script>
+let selectedRole = "customer";
+const roleContainer = document.getElementById("roleContainer");
+const customerBtn = document.getElementById("customerBtn");
+const workerBtn = document.getElementById("workerBtn");
+
+// Improved Role Toggle Logic
+customerBtn.onclick = () => {
+    selectedRole = "customer";
+    roleContainer.classList.remove("worker-active");
+    customerBtn.classList.add("active");
+    workerBtn.classList.remove("active");
+};
+
+workerBtn.onclick = () => {
+    selectedRole = "worker";
+    roleContainer.classList.add("worker-active");
+    workerBtn.classList.add("active");
+    customerBtn.classList.remove("active");
+};
+
+async function handleGoogleLogin(response) {
+    try {
+        const data = parseJwt(response.credential);
+        const user = {
+            email: data.email,
+            name: data.name,
+            picture: data.picture,
+            role: selectedRole,
+            phone: "",
+            address: "",
+            orders: []
+        };
+
+        // Saving to localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Redirect Animation effect
+        document.body.style.opacity = "0.5";
+        document.body.style.transition = "0.5s";
+
+        setTimeout(() => {
+            window.location.href = (selectedRole === "customer") ? "customer.html" : "worker.html";
+        }, 500);
+
+    } catch (err) {
+        document.getElementById("message").innerText = "Authentication failed. Please try again.";
+    }
+}
+
+function parseJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+}
+</script>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>

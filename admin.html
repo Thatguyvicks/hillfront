@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI', sans-serif; background:#f4f6fb; }
+
+/* NAVBAR */
+.navbar {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:#0f172a;
+  color:#fff;
+  padding:15px 30px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,0.1);
+  z-index:1000;
+}
+
+.navbar h1 { font-size:20px; }
+
+.nav-links { display:flex; gap:20px; }
+
+.nav-links div {
+  cursor:pointer;
+  padding:8px 12px;
+  border-radius:8px;
+  transition:0.3s;
+}
+
+.nav-links div:hover { background:#1e293b; }
+
+/* CONTENT */
+.container { padding:100px 30px 30px; }
+
+.card {
+  background:#fff;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+h2 { margin-bottom:20px; }
+
+/* TABLE */
+table { width:100%; border-collapse:collapse; }
+th, td { padding:12px; text-align:left; vertical-align:top; }
+th { background:#f1f5f9; }
+tr { border-bottom:1px solid #eee; }
+
+button {
+  padding:6px 12px;
+  border:none;
+  background:#2563eb;
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:hover { background:#1d4ed8; }
+
+.status-approved { color:green; font-weight:bold; }
+.status-pending { color:orange; font-weight:bold; }
+
+/* Expand applicant details */
+.detail-box { margin-top:8px; font-size:13px; color:#334155; }
+.detail-box p { margin:3px 0; }
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <h1>HillDash Admin</h1>
+  <div class="nav-links">
+    <div onclick="showSection('couriers')">Couriers</div>
+    <div onclick="showSection('stats')">Stats</div>
+    <div onclick="showSection('revenue')">Revenue</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- COURIERS SECTION -->
+  <div id="couriers" class="card section">
+    <h2>Courier Applications</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Vehicle</th>
+          <th>Experience</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="table"></tbody>
+    </table>
+  </div>
+
+  <!-- STATS SECTION -->
+  <div id="stats" class="card section" style="display:none;">
+    <h2>Stats</h2>
+    <p>Coming soon...</p>
+  </div>
+
+  <!-- REVENUE SECTION -->
+  <div id="revenue" class="card section" style="display:none;">
+    <h2>Revenue</h2>
+    <p>Coming soon...</p>
+  </div>
+
+</div>
+
+<script>
+const API = "https://hilldashcorp.onrender.com";
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+
+async function load() {
+  const table = document.getElementById("table");
+
+  try {
+    const res = await fetch(API + "/api/admin/couriers");
+    if (!res.ok) throw new Error("Failed");
+
+    const data = await res.json();
+    table.innerHTML = "";
+
+    if (data.length === 0) {
+      table.innerHTML = `<tr><td colspan="8">No applications yet</td></tr>`;
+      return;
+    }
+
+    data.forEach(c => {
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${c.email}</td>
+        <td>${c.name}</td>
+        <td>${c.phone || '-'}</td>
+        <td>${c.vehicle || '-'}</td>
+        <td>${c.experience || '-'}</td>
+        <td style="max-width:150px; white-space:pre-wrap; word-wrap:break-word;">${c.reason || '-'}</td>
+        <td class="${c.approved ? 'status-approved' : 'status-pending'}">
+          ${c.approved ? "Approved" : "Pending"}
+        </td>
+        <td>
+          ${c.approved 
+            ? "✔️"
+            : `<button onclick="approve('${c._id}')">Approve</button>`
+          }
+        </td>
+      `;
+
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error(err);
+    table.innerHTML = `<tr><td colspan="8">Error loading data</td></tr>`;
+  }
+}
+
+async function approve(id) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerText = "Approving...";
+  try{
+    await fetch(API + "/api/admin/approve-courier", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ id })
+    });
+  }catch(e){
+    console.error(e);
+  }
+  load();
+}
+
+load();
+</script>
+
+</body>
+</html>
